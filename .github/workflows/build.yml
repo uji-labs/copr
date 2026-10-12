@@ -1,0 +1,117 @@
+name: Build Fedora packages
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      submit_to_copr:
+        description: Publish to COPR after the package checks pass
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        fedora: ['43', '44', '45', rawhide]
+    env:
+      MOCK_TARGET: fedora-${{ matrix.fedora }}-x86_64
+    steps:
+      - uses: actions/checkout@v7
+      - name: Check the scripts
+        run: shellcheck scripts/*.sh
+      - name: Prepare the build tools
+        run: docker build --build-arg FEDORA=${{ matrix.fedora }} -t uji-copr-build .
+      - name: Build the source package
+        run: |
+          docker run --rm -v "$GITHUB_WORKSPACE:/packaging" uji-copr-build bash scripts/build-srpm.sh
+      - name: Prepare a clean Fedora build
+        run: |
+          docker run -d --name mock-build --privileged \
+            -v "$GITHUB_WORKSPACE:/packaging:ro" uji-copr-build sleep infinity
+          docker exec -e MOCK_TARGET mock-build bash -ec '
+            options=(-r "$MOCK_TARGET" --isolation=simple --no-bootstrap-chroot --config-opts=rpmbuild_networking=False)
+            mock "${options[@]}" --scrub=all
+            mock "${options[@]}" --init
+            mock "${options[@]}" --installdeps /packaging/dist/*.src.rpm
+          '
+      - name: Build without network access
+        run: |
+          docker network disconnect bridge mock-build
+          status=0
+          docker exec -e MOCK_TARGET mock-build bash -ec '
+            mock -r "$MOCK_TARGET" \
+              --isolation=simple --no-bootstrap-chroot --config-opts=rpmbuild_networking=False \
+              --offline --no-clean --no-cleanup-after --resultdir /tmp/results \
+              --rebuild /packaging/dist/*.src.rpm
+          ' || status=$?
+          docker cp mock-build:/tmp/results results
+          exit "$status"
+      - name: Check and install the package
+        run: |
+          docker run --rm --network none -v "$GITHUB_WORKSPACE:/packaging:ro" uji-copr-build bash -euc '
+            rpmlint dist/*.src.rpm results/uji-[0-9]*.$(uname -m).rpm
+            # Local build RPMs are unsigned. Keep digest and dependency checks.
+            rpm -Uvh --nosignature results/uji-[0-9]*.$(uname -m).rpm
+            HOME=$(mktemp -d)
+            export HOME
+            test "$(uji --version)" = "uji $(rpm -q --qf "%{VERSION}" uji)"
+            uji --help
+            test -z "$(ls -A "$HOME")"
+          '
+      - name: Upload the source package
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: uji-srpm-${{ matrix.fedora }}
+          path: dist/
+          if-no-files-found: error
+      - name: Upload the build logs
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: uji-build-logs-${{ matrix.fedora }}
+          path: results/*.log
+          if-no-files-found: warn
+      - name: Remove the build container
+        if: always()
+        run: docker rm -f mock-build 2>/dev/null || true
+
+  publish:
+    if: github.event_name == 'workflow_dispatch' && inputs.submit_to_copr && github.ref == 'refs/heads/master'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    container: registry.fedoraproject.org/fedora:44
+    environment: copr
+    concurrency:
+      group: copr-uji
+      cancel-in-progress: false
+    steps:
+      - name: Install COPR tools
+        run: dnf install -y copr-cli
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: uji-srpm-44
+          path: dist
+      - name: Publish and wait for COPR
+        env:
+          COPR_TARGET: ${{ vars.COPR_TARGET }}
+          COPR_CONFIG: ${{ secrets.COPR_CONFIG }}
+        shell: bash
+        run: |
+          : "${COPR_TARGET:?Set COPR_TARGET in the copr environment.}"
+          : "${COPR_CONFIG:?Set COPR_CONFIG in the copr environment.}"
+          umask 077
+          config=$(mktemp)
+          trap 'rm -f "$config"' EXIT
+          printf '%s\n' "$COPR_CONFIG" > "$config"
+          (cd dist && sha256sum --check SHA256SUMS)
+          copr-cli --config "$config" --no-color build --enable-net off "$COPR_TARGET" dist/*.src.rpm

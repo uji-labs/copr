@@ -1,0 +1,5 @@
+/dist/
+/work/
+/results/
+*.rpm
+__pycache__/
