@@ -20,13 +20,14 @@ The Homebrew and COPR update jobs run in parallel.
 1. Review the packaging PR's version, source commit, changelog, and dependency licenses.
    Update the license field if dependencies change.
 2. Merge into `master` after all Fedora checks pass.
-   Every push to `master` starts publication after the build checks pass.
+   Packaging changes on `master` start publication after the build checks pass.
 3. Wait for GitHub checks and publication to finish.
    Open the COPR build link in the publication log and confirm that all eight targets succeed.
    Investigate failed or skipped targets before announcing the release.
 4. Follow the [installation instructions](../README.md#installation) and check `uji --version` on Fedora.
 
 Publication submits the Fedora 44 source package only after all GitHub build jobs pass.
+Documentation-only changes run spelling and Markdown formatting checks without package builds or publication.
 To publish again, open [Build Fedora packages](https://github.com/uji-labs/copr/actions/workflows/build.yml), select `master`, and enable `submit_to_copr`.
 Leave it disabled for manual checks without publication.
 Increase the release number in `uji.spec` when packaging changes require a replacement RPM for the same upstream version.

@@ -2,8 +2,18 @@ name: Build Fedora packages
 
 on:
   pull_request:
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - '.markdownlint-cli2.jsonc'
+      - '.github/workflows/docs.yml'
   push:
     branches: [master]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - '.markdownlint-cli2.jsonc'
+      - '.github/workflows/docs.yml'
   workflow_dispatch:
     inputs:
       submit_to_copr:
