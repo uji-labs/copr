@@ -5,14 +5,12 @@ on:
     paths-ignore:
       - '**/*.md'
       - 'docs/**'
-      - '.markdownlint-cli2.jsonc'
       - '.github/workflows/docs.yml'
   push:
     branches: [master]
     paths-ignore:
       - '**/*.md'
       - 'docs/**'
-      - '.markdownlint-cli2.jsonc'
       - '.github/workflows/docs.yml'
   workflow_dispatch:
     inputs:

@@ -5,14 +5,12 @@ on:
     paths:
       - '**/*.md'
       - 'docs/**'
-      - '.markdownlint-cli2.jsonc'
       - '.github/workflows/docs.yml'
   push:
     branches: [master]
     paths:
       - '**/*.md'
       - 'docs/**'
-      - '.markdownlint-cli2.jsonc'
       - '.github/workflows/docs.yml'
 
 permissions:
