@@ -37,11 +37,13 @@ docker run --rm -v "$PWD:/packaging" uji-copr-build bash scripts/build-srpm.sh
 The source package goes into `dist/`.
 Remove `dist/` before another build.
 Update the version, commit, and changelog in `uji.spec` for each release.
-GitHub Actions checks Fedora 43, 44, 45, and Rawhide builds on `x86_64` without network access.
+GitHub Actions checks Fedora 43, 44, 45, and Rawhide builds on `x86_64` without
+network access.
 Use `--build-arg FEDORA=43`, `45`, or `rawhide` to select another Docker image.
 Submit packaging changes through a pull request.
 
-See [Publishing](docs/publishing.md) for release instructions and API token replacement.
+See [Publishing](docs/publishing.md) for release instructions and API token
+replacement.
 
 ## License
 
