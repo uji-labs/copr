@@ -33,9 +33,9 @@ Increase the release number in `uji.spec` when packaging changes require a repla
 
 ## Release automation
 
-Add the repository secret `COPR_PACKAGING_TOKEN` in `uji-labs/uji`.
-Use a fine-grained GitHub token with Contents and Pull requests write access to `uji-labs/copr`.
-The release job uses it to push a packaging branch and open a PR.
+Add the repository secret `PACKAGE_TOKEN` in `uji-labs/uji`.
+Use a fine-grained GitHub token with Contents and Pull requests write access to `uji-labs/homebrew-uji` and `uji-labs/copr`.
+Both release jobs use it to push packaging branches and open PRs.
 Keep COPR API credentials in this repository's `copr` environment, not in `uji-labs/uji`.
 
 ## Replace the API token
