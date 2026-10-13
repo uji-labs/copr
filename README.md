@@ -1,4 +1,4 @@
-# uji COPR
+# Uji COPR
 
 Fedora packages for [uji](https://github.com/uji-labs/uji).
 
