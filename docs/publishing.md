@@ -14,18 +14,29 @@ Do not put credentials in Git, logs, issues, or screenshots.
 
 ## Publish
 
-1. Update the version, pinned source commit, release number, and changelog in `uji.spec`.
-   Increase the release number when you change packaging for the same upstream version.
-2. Review dependency licenses and merge into `master` after the package checks pass.
-3. Open [Build Fedora packages](https://github.com/uji-labs/copr/actions/workflows/build.yml).
-   Select **Run workflow**, choose `master`, and enable `submit_to_copr`.
-4. Wait for GitHub checks and publication to finish.
+Each stable uji release opens a packaging PR after its binary builds finish.
+The Homebrew and COPR update jobs run in parallel.
+
+1. Review the packaging PR's version, source commit, changelog, and dependency licenses.
+   Update the license field if dependencies change.
+2. Merge into `master` after all Fedora checks pass.
+   Every push to `master` starts publication after the build checks pass.
+3. Wait for GitHub checks and publication to finish.
    Open the COPR build link in the publication log and confirm that all eight targets succeed.
    Investigate failed or skipped targets before announcing the release.
-5. Follow the [installation instructions](../README.md#installation) and check `uji --version` on Fedora.
+4. Follow the [installation instructions](../README.md#installation) and check `uji --version` on Fedora.
 
 Publication submits the Fedora 44 source package only after all GitHub build jobs pass.
-Leave `submit_to_copr` disabled for checks without publication.
+To publish again, open [Build Fedora packages](https://github.com/uji-labs/copr/actions/workflows/build.yml), select `master`, and enable `submit_to_copr`.
+Leave it disabled for manual checks without publication.
+Increase the release number in `uji.spec` when packaging changes require a replacement RPM for the same upstream version.
+
+## Release automation
+
+Add the repository secret `COPR_PACKAGING_TOKEN` in `uji-labs/uji`.
+Use a fine-grained GitHub token with Contents and Pull requests write access to `uji-labs/copr`.
+The release job uses it to push a packaging branch and open a PR.
+Keep COPR API credentials in this repository's `copr` environment, not in `uji-labs/uji`.
 
 ## Replace the API token
 

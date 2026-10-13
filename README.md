@@ -4,8 +4,6 @@ Fedora packages for [uji](https://github.com/uji-labs/uji).
 
 ## Installation
 
-Run these commands after the COPR project is available:
-
 ```sh
 sudo dnf copr enable @uji-labs/Uji
 sudo dnf install uji

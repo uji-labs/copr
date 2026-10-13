@@ -85,7 +85,7 @@ jobs:
         run: docker rm -f mock-build 2>/dev/null || true
 
   publish:
-    if: github.event_name == 'workflow_dispatch' && inputs.submit_to_copr && github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.submit_to_copr))
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 90
