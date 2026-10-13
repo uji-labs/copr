@@ -7,7 +7,7 @@ Fedora packages for [uji](https://github.com/uji-labs/uji).
 Run these commands after the COPR project is available:
 
 ```sh
-sudo dnf copr enable @uji-labs/uji
+sudo dnf copr enable @uji-labs/Uji
 sudo dnf install uji
 ```
 
@@ -24,7 +24,7 @@ See the [uji documentation](https://docs.uji.sh) for configuration.
 
 ```sh
 sudo dnf remove uji
-sudo dnf copr disable @uji-labs/uji
+sudo dnf copr disable @uji-labs/Uji
 ```
 
 ## Building / contributing
@@ -43,10 +43,7 @@ GitHub Actions checks Fedora 43, 44, 45, and Rawhide builds on `x86_64` without 
 Use `--build-arg FEDORA=43`, `45`, or `rawhide` to select another Docker image.
 Submit packaging changes through a pull request.
 
-To publish, create a GitHub environment named `copr` and restrict it to `master`.
-Set `COPR_TARGET` to `@uji-labs/uji` and add your [COPR API configuration](https://copr.fedorainfracloud.org/api/) as the secret `COPR_CONFIG`.
-Enable Fedora 43, 44, 45, and Rawhide builds for `x86_64` and `aarch64` in COPR.
-Run **Build Fedora packages** with publication enabled after you review the bundled licenses.
+See [Publishing](docs/publishing.md) for release instructions and API token replacement.
 
 ## License
 
