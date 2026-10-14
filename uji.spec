@@ -1,7 +1,7 @@
-%global commit 7b7ee842670368af835438af73ebadf04014db51
+%global commit 9a612f15a772921867f8df688e1630f2ae6aa834
 
 Name:           uji
-Version:        0.2.2
+Version:        0.2.3
 Release:        1%{?dist}
 Summary:        A coding agent with Lua configuration
 # Includes vendored dependencies and embedded syntax definitions.
@@ -48,5 +48,8 @@ target/rpm/uji --help
 %{_bindir}/uji
 
 %changelog
+* Wed Oct 14 2026 github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com> - 0.2.3-1
+- Update to v0.2.3.
+
 * Mon Oct 12 2026 PiX <69745008+pixincreate@users.noreply.github.com> - 0.2.2-1
 - Package the pinned release with locked dependencies and license notices.
